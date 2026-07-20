@@ -12,7 +12,7 @@ A robot that can tell whether a nearby person intends to interact with it can de
 
 Splitting pose and gaze into two independently-trained models let us pull in more training data for each: four public datasets (Yale Shutter Interaction, MINT-RVAE, MPIIGaze, Columbia Gaze) were combined for training, with a fifth (JPL Interaction) used to qualitatively validate the full pipeline on unseen video.
 
-**Demo:** [`media/demo.mp4`](media/demo.mp4) — one sequence with three views side by side: raw video, the LSTM's live intent prediction (interacting / not interacting), and the predicted gaze direction.
+**Demo:** [`media/demo.mp4`](media/demo.mp4), one sequence with three views side by side: raw video, the LSTM's live intent prediction (interacting / not interacting), and the predicted gaze direction.
 
 <video src="media/demo.mp4" controls muted width="640"></video>
 
@@ -20,9 +20,9 @@ Splitting pose and gaze into two independently-trained models let us pull in mor
 
 This was a two-person project. I built:
 
-- **Gaze dataset combination** — merging MPIIGaze and Columbia Gaze into a single training set for the gaze model.
-- **Gaze prediction model and training** (`gaze_mlp.py`) — the MediaPipe-landmark → MLP pipeline that regresses pitch/yaw and thresholds it into an "at the robot" signal.
-- **Transformer model and training** (`transformer_model.py`) — the pose-sequence transformer classifier used as the alternative to the LSTM for intent classification.
+- **Gaze dataset combination**: merging MPIIGaze and Columbia Gaze into a single training set for the gaze model.
+- **Gaze prediction model and training** (`gaze_mlp.py`): the MediaPipe-landmark → MLP pipeline that regresses pitch/yaw and thresholds it into an "at the robot" signal.
+- **Transformer model and training** (`transformer_model.py`): the pose-sequence transformer classifier used as the alternative to the LSTM for intent classification.
 - Contributed to the **Yale Shutter + MINT-RVAE dataset combination and coordinate-frame transform** (pose-dataset side), alongside Tian Yu, who took the lead on getting this working and refined it further.
 
 Tian Yu built the YOLOv11 pose extraction/trajectory pipeline, the LSTM baseline, and the final voting/action logic.
@@ -46,9 +46,9 @@ Gaze model, mean angular error vs. published baselines:
 | MPIIGaze (reference) | GazeNet+ | 5.4 |
 | **This project** | **MediaPipe landmarks + MLP** | **6.2** |
 
-The transformer matched or slightly exceeded both the LSTM and the published MINT-RVAE reference — but this isn't an apples-to-apples architecture comparison: the reference was trained on a single dataset, while ours combined Yale Shutter + MINT-RVAE for ~10x the training sequences, which is the more likely driver of the gap. The label distribution (~64% positive) also likely inflates F1/accuracy somewhat.
+The transformer matched or slightly exceeded both the LSTM and the published MINT-RVAE reference, but this isn't an apples-to-apples architecture comparison: the reference was trained on a single dataset, while ours combined Yale Shutter + MINT-RVAE for ~10x the training sequences, which is the more likely driver of the gap. The label distribution (~64% positive) also likely inflates F1/accuracy somewhat.
 
-**Important caveat:** the numbers above describe the pose classifier and gaze regressor in isolation. The combined pose+gaze fusion pipeline — the thing actually being pitched here — was only evaluated qualitatively on the JPL Interaction video (no ground truth labels available), not benchmarked quantitatively. Qualitatively, fusing gaze with pose did reduce flicker in the pose model's predictions — gaze stayed reliable up close where pose keypoints got noisy, and pose stayed reliable at a distance where MediaPipe's face mesh dropped out — but there's no end-to-end accuracy number to back that up.
+**Important caveat:** the numbers above describe the pose classifier and gaze regressor in isolation. The combined pose+gaze fusion pipeline, the thing actually being pitched here, was only evaluated qualitatively on the JPL Interaction video (no ground truth labels available), not benchmarked quantitatively. Qualitatively, fusing gaze with pose did reduce flicker in the pose model's predictions: gaze stayed reliable up close where pose keypoints got noisy, and pose stayed reliable at a distance where MediaPipe's face mesh dropped out, but there's no end-to-end accuracy number to back that up.
 
 ## Repo structure
 
@@ -75,7 +75,7 @@ lstm_pipeline/
   video_pipeline.ipynb                    # End-to-end video inference notebook
 ```
 
-Trained weights, processed dataset caches, and generated visualizations are not checked into this repo (see `.gitignore`) — they're either downloaded automatically (YOLOv11/MediaPipe pretrained weights) or reproducible from the scripts above.
+Trained weights, processed dataset caches, and generated visualizations are not checked into this repo (see `.gitignore`); they're either downloaded automatically (YOLOv11/MediaPipe pretrained weights) or reproducible from the scripts above.
 
 ## Setup
 
@@ -85,7 +85,7 @@ pip install -r requirements.txt
 
 Also requires `ultralytics`, `mediapipe`, and `scikit-learn` for pose extraction, face landmarks, and evaluation metrics (not pinned in `requirements.txt`). YOLOv11 pose weights and the MediaPipe face landmarker model are downloaded automatically on first run.
 
-Datasets (Yale Shutter Interaction, MINT-RVAE, MPIIGaze, Columbia Gaze, JPL Interaction) are third-party and not redistributed here — see `report.pdf` §III-C for sources. Once obtained, preprocess with `scripts/process_all_data.py` and train with `scripts/train_and_eval.py` (see script `--help` for options).
+Datasets (Yale Shutter Interaction, MINT-RVAE, MPIIGaze, Columbia Gaze, JPL Interaction) are third-party and not redistributed here; see `report.pdf` §III-C for sources. Once obtained, preprocess with `scripts/process_all_data.py` and train with `scripts/train_and_eval.py` (see script `--help` for options).
 
 ## Limitations & next steps
 
