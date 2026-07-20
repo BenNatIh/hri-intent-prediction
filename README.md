@@ -19,8 +19,9 @@ This was a two-person project. I built:
 - **Gaze dataset combination** — merging MPIIGaze and Columbia Gaze into a single training set for the gaze model.
 - **Gaze prediction model and training** (`gaze_mlp.py`) — the MediaPipe-landmark → MLP pipeline that regresses pitch/yaw and thresholds it into an "at the robot" signal.
 - **Transformer model and training** (`transformer_model.py`) — the pose-sequence transformer classifier used as the alternative to the LSTM for intent classification.
+- Contributed to the **Yale Shutter + MINT-RVAE dataset combination and coordinate-frame transform** (pose-dataset side), alongside Tian Yu, who took the lead on getting this working and refined it further.
 
-Tian Yu built the YOLOv11 pose extraction/trajectory pipeline, the LSTM baseline, the pose-dataset combination and coordinate-frame transforms, and the final voting/action logic.
+Tian Yu built the YOLOv11 pose extraction/trajectory pipeline, the LSTM baseline, and the final voting/action logic.
 
 ## Results
 
