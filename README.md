@@ -42,7 +42,9 @@ Gaze model, mean angular error vs. published baselines:
 | MPIIGaze (reference) | GazeNet+ | 5.4 |
 | **This project** | **MediaPipe landmarks + MLP** | **6.2** |
 
-The transformer outperformed both the LSTM and the published reference despite a smaller feature set, largely due to combining Yale Shutter + MINT-RVAE for ~10x the training sequences. Qualitatively, fusing gaze with pose reduced flicker in the pose model's predictions — gaze stayed reliable up close where pose keypoints got noisy, and pose stayed reliable at a distance where MediaPipe's face mesh dropped out.
+The transformer matched or slightly exceeded both the LSTM and the published MINT-RVAE reference — but this isn't an apples-to-apples architecture comparison: the reference was trained on a single dataset, while ours combined Yale Shutter + MINT-RVAE for ~10x the training sequences, which is the more likely driver of the gap. The label distribution (~64% positive) also likely inflates F1/accuracy somewhat.
+
+**Important caveat:** the numbers above describe the pose classifier and gaze regressor in isolation. The combined pose+gaze fusion pipeline — the thing actually being pitched here — was only evaluated qualitatively on the JPL Interaction video (no ground truth labels available), not benchmarked quantitatively. Qualitatively, fusing gaze with pose did reduce flicker in the pose model's predictions — gaze stayed reliable up close where pose keypoints got noisy, and pose stayed reliable at a distance where MediaPipe's face mesh dropped out — but there's no end-to-end accuracy number to back that up.
 
 ## Repo structure
 
