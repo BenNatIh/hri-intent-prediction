@@ -3,3 +3,12 @@ datasets/
 runs/
 mp_test/
 __pycache__/
+viz_plotly_out/
+tmp_out/
+checkpoints/
+*.pt
+*.pth
+*.npz
+*.task
+*.csv
+*.avi

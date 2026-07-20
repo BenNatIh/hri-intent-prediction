@@ -17,10 +17,10 @@ Splitting pose and gaze into two independently-trained models let us pull in mor
 This was a two-person project. I built:
 
 - **Gaze dataset combination** — merging MPIIGaze and Columbia Gaze into a single training set for the gaze model.
-- **Gaze prediction model and training** — the MediaPipe-landmark → MLP pipeline that regresses pitch/yaw and thresholds it into an "at the robot" signal.
-- **Transformer model and training** — the temporal transformer (encoding + downsampling + sinusoidal positional encoding + learned CLS token + 6-head/3-layer encoder) used as the alternative to the LSTM for pose-based intent classification.
+- **Gaze prediction model and training** (`gaze_mlp.py`) — the MediaPipe-landmark → MLP pipeline that regresses pitch/yaw and thresholds it into an "at the robot" signal.
+- **Transformer model and training** (`transformer_model.py`) — the pose-sequence transformer classifier used as the alternative to the LSTM for intent classification.
 
-Tian Yu built the YOLOv11 pose extraction/trajectory pipeline, the LSTM baseline, the pose-dataset combination (Yale Shutter + MINT-RVAE) and coordinate-frame transforms, and the final voting/action logic.
+Tian Yu built the YOLOv11 pose extraction/trajectory pipeline, the LSTM baseline, the pose-dataset combination and coordinate-frame transforms, and the final voting/action logic.
 
 ## Results
 
@@ -46,19 +46,29 @@ The transformer outperformed both the LSTM and the published reference despite a
 ## Repo structure
 
 ```
+transformer_model.py                      # Pose-sequence transformer classifier
+gaze_mlp.py                               # Gaze MLP (landmarks -> pitch/yaw)
+data_utils.py                             # Dataset windowing/loading utilities
 face_landmark.py                          # MediaPipe face landmark extraction
-yolo_pose.py                              # YOLOv11 pose extraction wrapper
+pretrain.py                               # Self-supervised pretraining for the pose encoder
+scripts/
+  process_all_data.py                     # Unified dataset -> NPZ preprocessing
+  train_and_eval.py                       # Training/evaluation harness
+  convert_to_npz.py, convert_dataset_approach.py,
+  preprocess_tracks.py, relabel_npz_future.py,
+  audit_windows.py, inspect_npz.py         # Dataset conversion, labeling, and inspection utilities
+  yolo_pose.py                            # YOLOv11 pose extraction wrapper
 lstm_pipeline/
-  bilstm_model.py                         # LSTM intent classifier
-  transformer_model.py                    # Transformer intent classifier
-  extract_gaze_from_video_lstm.py         # Gaze extraction over video
-  facing_estimator.py                     # Facing-direction heuristic from pose
-  resample_dataverse_to_30hz.py           # Dataset preprocessing
-  save_dataverse_animations.py            # Dataset visualization export
+  lstm_model.py                           # LSTM intent classifier
+  gaze_mlp.py                             # Gaze MLP (pipeline-local copy)
+  data_processing.py                      # Sequence windowing for the LSTM/transformer pipeline
+  extract_gaze_from_video.py              # Gaze extraction over video
+  preprocess_vis_data.py                  # Dataset visualization/preprocessing
   train_model.ipynb                       # Training/evaluation notebook
   video_pipeline.ipynb                    # End-to-end video inference notebook
-testing.ipynb                             # Pipeline testing notebook
 ```
+
+Trained weights, processed dataset caches, and generated visualizations are not checked into this repo (see `.gitignore`) — they're either downloaded automatically (YOLOv11/MediaPipe pretrained weights) or reproducible from the scripts above.
 
 ## Setup
 
@@ -66,9 +76,9 @@ testing.ipynb                             # Pipeline testing notebook
 pip install -r requirements.txt
 ```
 
-Also requires `torch`, `numpy`, and `scikit-learn` for model training/evaluation (not pinned in `requirements.txt`). YOLOv11 pose weights and the MediaPipe `face_landmarker.task` model are downloaded automatically by `ultralytics`/`mediapipe` on first run and are not checked into this repo.
+Also requires `ultralytics`, `mediapipe`, and `scikit-learn` for pose extraction, face landmarks, and evaluation metrics (not pinned in `requirements.txt`). YOLOv11 pose weights and the MediaPipe face landmarker model are downloaded automatically on first run.
 
-Datasets (Yale Shutter Interaction, MINT-RVAE, MPIIGaze, Columbia Gaze, JPL Interaction) are third-party and not redistributed here — see `report.pdf` §III-C for sources.
+Datasets (Yale Shutter Interaction, MINT-RVAE, MPIIGaze, Columbia Gaze, JPL Interaction) are third-party and not redistributed here — see `report.pdf` §III-C for sources. Once obtained, preprocess with `scripts/process_all_data.py` and train with `scripts/train_and_eval.py` (see script `--help` for options).
 
 ## Limitations & next steps
 
@@ -77,4 +87,4 @@ Datasets (Yale Shutter Interaction, MINT-RVAE, MPIIGaze, Columbia Gaze, JPL Inte
 - A natural extension is predicting specific actions (waving, pointing) using the same pose/face-mesh features, rather than a single binary intent signal.
 
 ---
-Cloned and cleaned from the original collaborative repo for portfolio purposes; original at [github.com/TianmYu/aer1515](https://github.com/TianmYu/aer1515) (`mint_and_yale-2` branch).
+Cloned and cleaned from the original collaborative repo for portfolio purposes; original at [github.com/TianmYu/aer1515](https://github.com/TianmYu/aer1515) (`model-lstm` branch).
