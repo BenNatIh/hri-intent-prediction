@@ -12,6 +12,10 @@ A robot that can tell whether a nearby person intends to interact with it can de
 
 Splitting pose and gaze into two independently-trained models let us pull in more training data for each: four public datasets (Yale Shutter Interaction, MINT-RVAE, MPIIGaze, Columbia Gaze) were combined for training, with a fifth (JPL Interaction) used to qualitatively validate the full pipeline on unseen video.
 
+**Demo:** [`media/demo.mp4`](media/demo.mp4) — one sequence with three views side by side: raw video, the LSTM's live intent prediction (interacting / not interacting), and the predicted gaze direction.
+
+<video src="media/demo.mp4" controls muted width="640"></video>
+
 ## My contributions
 
 This was a two-person project. I built:
